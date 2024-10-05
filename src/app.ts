@@ -2,10 +2,11 @@ import express, { Express } from "express";
 import cors from "cors";
 import { AddressInfo } from "net";
 import * as dotenv from "dotenv";
+import mysql, { RowDataPacket } from "mysql2/promise";
 
 async function main() {
   dotenv.config();
-  const { PORT } = process.env;
+  const { PORT, MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASS, MYSQL_DB } = process.env;
 
   const app: Express = express();
 
@@ -26,8 +27,27 @@ async function main() {
     console.log("Node.js is listening to PORT:" + address.port);
   });
 
+  const connection = await mysql.createConnection({
+    host: MYSQL_HOST as string,
+    port: parseInt(MYSQL_PORT as string),
+    user: MYSQL_USER as string,
+    password: MYSQL_PASS as string,
+    database: MYSQL_DB as string,
+  });
+
   app.get("/", async (req, res) => {
-    res.json("テスト");
+    const sql = "SELECT * FROM todos";
+    const [rows] = await connection.execute<
+      {
+        id: number;
+        title: string;
+        description: string;
+        createdAt?: Date;
+        updetaedAtt?: Date;
+      }[] &
+        RowDataPacket[]
+    >(sql);
+    res.json(rows);
   });
 }
 main();
