@@ -1,8 +1,12 @@
 import express, { Express } from "express";
 import cors from "cors";
 import { AddressInfo } from "net";
+import * as dotenv from "dotenv";
 
 async function main() {
+  dotenv.config();
+  const { PORT } = process.env;
+
   const app: Express = express();
 
   app.use(express.json());
@@ -17,7 +21,7 @@ async function main() {
 
   app.use(cors(corsOptions));
 
-  const sever = app.listen(4000, () => {
+  const sever = app.listen(parseInt(PORT as string), () => {
     const address = sever.address() as AddressInfo;
     console.log("Node.js is listening to PORT:" + address.port);
   });
