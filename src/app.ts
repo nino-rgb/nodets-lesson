@@ -1,8 +1,16 @@
-import express, { Express } from "express";
+import express, { Express, Request, Response } from "express";
 import cors from "cors";
 import { AddressInfo } from "net";
 import * as dotenv from "dotenv";
-import mysql, { RowDataPacket } from "mysql2/promise";
+import mysql, { ResultSetHeader, RowDataPacket } from "mysql2/promise";
+import { todo } from "node:test";
+import { title } from "process";
+import { parse } from "path";
+import { ok } from "assert";
+import { json } from "stream/consumers";
+import { TodoReository } from "./repositories/todoRepository";
+import { TodoService } from "./services/todoService";
+import { TodoController } from "./controllers/todoController";
 
 async function main() {
   dotenv.config();
@@ -35,19 +43,9 @@ async function main() {
     database: MYSQL_DB as string,
   });
 
-  app.get("/", async (req, res) => {
-    const sql = "SELECT * FROM todos";
-    const [rows] = await connection.execute<
-      {
-        id: number;
-        title: string;
-        description: string;
-        createdAt?: Date;
-        updetaedAtt?: Date;
-      }[] &
-        RowDataPacket[]
-    >(sql);
-    res.json(rows);
-  });
+  const repository = new TodoReository(connection);
+  const service = new TodoService(repository);
+  const controller = new TodoController(service);
+  app.use("/api/", controller.router);
 }
 main();
