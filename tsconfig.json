@@ -17,6 +17,7 @@
   "include": [
     "src/**/*.ts",
     ".eslintrc.js",
+    "src/tests/utils/DataBase",
   ],
   "exclude": [
     "node_modules",
