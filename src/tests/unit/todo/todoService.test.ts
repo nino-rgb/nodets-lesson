@@ -218,4 +218,32 @@ describe("TodoService", () => {
       expect(result.message).toBe("repository error");
     });
   });
+  describe("delete", () => {
+    it("should return no errors", async () => {
+      const mockRepository = createMockRepository();
+      mockRepository.delete = jest.fn().mockResolvedValue(null);
+
+      const service = new TodoService(mockRepository);
+      const result = await service.delete(1);
+
+      if (result instanceof Error) {
+        throw new Error(`Test faild because an error has occurred: ${result.message}`);
+      }
+
+      expect(result).toBe(null);
+    });
+    it("should return repository error", async () => {
+      const mockRepository = createMockRepository();
+      mockRepository.delete = jest.fn().mockResolvedValue(new Error("repository error"));
+
+      const service = new TodoService(mockRepository);
+      const result = await service.delete(1);
+
+      if (!(result instanceof Error)) {
+        throw new Error("Test failed because an error has not occurred");
+      }
+
+      expect(result.message).toBe("repository error");
+    });
+  });
 });
