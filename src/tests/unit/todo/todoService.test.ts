@@ -13,14 +13,16 @@ import { TodoService } from "../../../services/todoService";
 import { ITodoRepository } from "../../../repositories/interface";
 import { Todo } from "../../../models/todo";
 import { createTodoTestData } from "../../utils/testData/createTodoTestDate";
+import { NotFoundDataError } from "../../../utils/error";
+import exp from "constants";
 
 function createMockRepository(): ITodoRepository {
   const mockRepository: ITodoRepository = {
-    findAll: jest.fn(),
-    getById: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
+    findAll: jest.fn().mockRejectedValue(new Error("function not implemented")),
+    getById: jest.fn().mockRejectedValue(new Error("function not implemented")),
+    create: jest.fn().mockRejectedValue(new Error("function not implemented")),
+    update: jest.fn().mockRejectedValue(new Error("function not implemented")),
+    delete: jest.fn().mockRejectedValue(new Error("function not implemented")),
   };
   return mockRepository;
 }
@@ -140,6 +142,74 @@ describe("TodoService", () => {
         description: "description",
       };
       const result = await service.create(createTodo);
+
+      if (!(result instanceof Error)) {
+        throw new Error("Test failed because an error has not occurred");
+      }
+
+      expect(result.message).toBe("repository error");
+    });
+  });
+  describe("update", () => {
+    it("should return no errors", async () => {
+      const mockRepository = createMockRepository();
+      const mockGetByIdResult: Todo = {
+        id: 1,
+        title: "title",
+        description: "description",
+      };
+      mockRepository.getById = jest.fn().mockResolvedValue(mockGetByIdResult);
+      mockRepository.update = jest.fn().mockResolvedValue(null);
+
+      const service = new TodoService(mockRepository);
+      const updateTodo: Todo = {
+        title: "update title",
+        description: "update description",
+      };
+      const result = await service.update(1, updateTodo);
+
+      if (result instanceof Error) {
+        throw new Error(`Test faild because an error has occurred: ${result.message}`);
+      }
+
+      expect(result).toBe(null);
+    });
+    it("should return notfound error", async () => {
+      const mockGetByIdResult: Error = new NotFoundDataError("mock notfound error");
+      const mockRepository = createMockRepository();
+      mockRepository.getById = jest.fn().mockResolvedValue(mockGetByIdResult);
+      mockRepository.update = jest.fn().mockResolvedValue(null);
+
+      const service = new TodoService(mockRepository);
+      const updateTodo: Todo = {
+        title: "update title",
+        description: "update description",
+      };
+      const result = await service.update(1, updateTodo);
+
+      if (!(result instanceof Error)) {
+        throw new Error("Test failed because an error has not occurred");
+      }
+
+      expect(result instanceof NotFoundDataError).toBeTruthy();
+      expect(result.message).toBe("mock notfound error");
+    });
+    it("should return repository error", async () => {
+      const mockRepository = createMockRepository();
+      const mockGetByIdResult: Todo = {
+        id: 1,
+        title: "title",
+        description: "description",
+      };
+      mockRepository.getById = jest.fn().mockResolvedValue(mockGetByIdResult);
+      mockRepository.update = jest.fn().mockResolvedValue(new Error("repository error"));
+
+      const service = new TodoService(mockRepository);
+      const updateTodo: Todo = {
+        title: "update title",
+        description: "update description",
+      };
+      const result = await service.update(1, updateTodo);
 
       if (!(result instanceof Error)) {
         throw new Error("Test failed because an error has not occurred");
