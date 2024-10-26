@@ -12,6 +12,7 @@ import { title } from "process";
 import { TodoService } from "../../../services/todoService";
 import { ITodoRepository } from "../../../repositories/interface";
 import { Todo } from "../../../models/todo";
+import { createTodoTestData } from "../../utils/testData/createTodoTestDate";
 
 function createMockRepository(): ITodoRepository {
   const mockRepository: ITodoRepository = {
@@ -67,6 +68,78 @@ describe("TodoService", () => {
 
       const service = new TodoService(mockRepository);
       const result = await service.findAll();
+
+      if (!(result instanceof Error)) {
+        throw new Error("Test failed because an error has not occurred");
+      }
+
+      expect(result.message).toBe("repository error");
+    });
+  });
+
+  describe("getById", () => {
+    it("should return 5 todo", async () => {
+      const todo: Todo = {
+        id: 1,
+        title: "title",
+        description: "description",
+      };
+      const mockRepository = createMockRepository();
+      mockRepository.getById = jest.fn().mockResolvedValue(todo);
+
+      const service = new TodoService(mockRepository);
+      const result = await service.getById(todo.id!);
+
+      if (result instanceof Error) {
+        throw new Error(`Test faild because an error has occurred: ${result.message}`);
+      }
+
+      expect(result.id).toBe(todo.id);
+      expect(result.title).toBe(todo.title);
+      expect(result.description).toBe(todo.description);
+    });
+    it("should return repository error", async () => {
+      const mockRepository = createMockRepository();
+      mockRepository.getById = jest.fn().mockResolvedValue(new Error("repository error"));
+
+      const service = new TodoService(mockRepository);
+      const result = await service.getById(1);
+
+      if (!(result instanceof Error)) {
+        throw new Error("Test failed because an error has not occurred");
+      }
+
+      expect(result.message).toBe("repository error");
+    });
+  });
+  describe("create", () => {
+    it("should return createed 1", async () => {
+      const mockRepository = createMockRepository();
+      mockRepository.create = jest.fn().mockResolvedValue(1);
+
+      const service = new TodoService(mockRepository);
+      const createTodo: Todo = {
+        title: "title",
+        description: "description",
+      };
+      const result = await service.create(createTodo);
+
+      if (result instanceof Error) {
+        throw new Error(`Test faild because an error has occurred: ${result.message}`);
+      }
+
+      expect(result).toBe(1);
+    });
+    it("should return repository error", async () => {
+      const mockRepository = createMockRepository();
+      mockRepository.create = jest.fn().mockResolvedValue(new Error("repository error"));
+
+      const service = new TodoService(mockRepository);
+      const createTodo: Todo = {
+        title: "title",
+        description: "description",
+      };
+      const result = await service.create(createTodo);
 
       if (!(result instanceof Error)) {
         throw new Error("Test failed because an error has not occurred");
