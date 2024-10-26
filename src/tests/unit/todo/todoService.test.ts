@@ -12,7 +12,7 @@ import { title } from "process";
 import { TodoService } from "../../../services/todoService";
 import { ITodoRepository } from "../../../repositories/interface";
 import { Todo } from "../../../models/todo";
-import { createTodoTestData } from "../../utils/testData/createTodoTestDate";
+import { createTodoTestData } from "../../utils/testData/createTodoTestData";
 import { NotFoundDataError } from "../../../utils/error";
 import exp from "constants";
 

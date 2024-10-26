@@ -60,6 +60,7 @@ export class TodoController {
 
       if (result instanceof NotFoundDataError) {
         res.status(404).json(result.message);
+        return;
       }
 
       if (result instanceof Error) {

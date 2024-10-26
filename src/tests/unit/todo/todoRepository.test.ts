@@ -4,7 +4,7 @@ import { TodoReository } from "../../../../src/repositories/todoRepository";
 import { NotFoundDataError, SqlError } from "../../../../src/utils/error";
 import { createDBConnection } from "../../utils/DataBase";
 import { before } from "node:test";
-import { createTodoTestData } from "../../utils/testData/createTodoTestDate";
+import { createTodoTestData } from "../../utils/testData/createTodoTestData";
 
 let connection: Connection;
 
